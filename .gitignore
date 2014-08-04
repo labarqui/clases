@@ -10,4 +10,4 @@ bin/
 *.ihex
 *.obj
 ejemplos/nosync
-
+control*
