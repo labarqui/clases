@@ -1,0 +1,196 @@
+<!doctype html>  
+<html lang="en">
+	
+	<head>
+		<meta charset="utf-8">
+		
+		<title>Laboratorio de Arquitectura de Computadores - Clase VI</title>
+
+		<meta name="description" content="Clase #VI del curso: ADC">
+		<meta name="author" content="José Luis Honorato L.">
+		<!-- Modified from the demo @reveal.js's demo page: http://lab.hakim.se/reveal-js/#/ JLH -->
+
+		<meta name="apple-mobile-web-app-capable" content="yes" />
+		<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+		
+		<link href='http://fonts.googleapis.com/css?family=Lato:400,700,400italic,700italic' rel='stylesheet' type='text/css'>
+		
+		<link rel="stylesheet" href="css/reset.css">
+		<link rel="stylesheet" href="css/main.css">
+		<link rel="stylesheet" href="css/print.css" type="text/css" media="print">
+
+		<link rel="stylesheet" href="lib/css/zenburn.css">
+	</head>
+	<!-- Analytics code -->
+	<script type="text/javascript">
+
+	  var _gaq = _gaq || [];
+	  _gaq.push(['_setAccount', 'UA-33777187-1']);
+	  _gaq.push(['_trackPageview']);
+
+	  (function() {
+	    var ga = document.createElement('script'); ga.type = 'text/javascript'; ga.async = true;
+	    ga.src = ('https:' == document.location.protocol ? 'https://ssl' : 'http://www') + '.google-analytics.com/ga.js';
+	    var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(ga, s);
+	  })();
+
+	</script>
+	
+	<body>
+		
+		<div class="reveal">
+
+			<!-- Used to fade in a background when a specific slide state is reached -->
+			<div class="state-background"></div>
+			
+			<!-- Any section element inside of this container is displayed as a slide -->
+			<div class="slides">
+				<!-- Slide 1 -->
+				<section>
+					<br>
+					<h2>IIC2344 - Clase VI</h2>
+					<h3>Uso del ADC</h3>
+					<br>
+					<p>José Luis Honorato L.</p>
+					<code href="mailto:jlhonora@ing.puc.cl">jlhonora@ing.puc.cl</code>
+					<br>
+					<script>
+						// Delicously hacky. Look away.
+						if( navigator.userAgent.match( /(iPhone|iPad|iPod|Android)/i ) ) document.write( '<p style="color: rgba(0,0,0,0.3); text-shadow: none;">('+'Tap to navigate'+')</p>' );
+					</script>
+				</section>
+				<!-- Slide -->
+				<section>
+					<h2>ADC</h2>
+					<ul>
+						<li>ADC:<i>Analog to digital converter</i>, conversor análogo-digital</li>
+						<li>Toma muestras de una señal continua, la discretiza y la transforma en un número digital</li>
+						<li>Puede tener muchos niveles. Entre más niveles, mejor calidad</li>
+						<li>5529: 12 bits (4096 niveles)</li>
+						<li>Telefonía fija (PCM): 8 bits</li>
+					</ul>
+				</section>
+				<!-- Slide -->
+				<section>
+					<h2>Parámetros importantes de los ADC</h2>
+					<ul>
+						<li>Resolución: número de bits por muestra</li>
+						<li>Rapidez: muestras por segundo</li>
+						<li>Niveles máximos, rangos de saturación</li>
+					</ul>
+				</section>
+				<!-- Slide -->
+				<section>
+					<h2>msp430: ADC12</h2>
+					<ul>
+						<li>En msp430, módulo ADC: ADC12</li>
+						<li>12 bits</li>
+						<li>Hasta 200k muestras/segundo</li>
+						<li>DMA: hasta 16 muestras sin intervención de la CPU</li>
+						<li>12 entradas independientes</li>
+					</ul>
+				</section>
+				<!-- Slide -->
+				<section>
+					<h2>Configuración de hardware</h2>
+					<ul>
+						<li><img src="images/clase6/schem.png"></li>
+						<li>P8.0 para alimentar el potenciómetro</li>
+						<li>P6.5 (A5) para leer el voltaje análogo </li>
+					</ul>
+				</section>
+				<!-- Slide -->
+				<section>
+					<h2>Seteo ADC12</h2>
+					<ol>
+						<li>Setear función de los pines</li>
+						<li>Setear ADC12ENC = 0</li>
+						<li>Modificar registros ADC12CTL0 y 1</li>
+						<li>Setear ADC12ON = 1</li>
+						<li>Capítulo 26 Family Guide 5xx</li>
+					</ol>
+				</section>
+				<!-- Slide -->
+				<section>
+					<h2>Seteo ADC</h2>
+					<ul>
+						<li>Sample and Hold: 128 ciclos</li>
+						<li>ADC clock source select: ACLK</li>
+						<li>Input channel: A5</li>
+					</ul>
+				</section>
+				<!-- Slide -->
+				<section>
+					<h2>Tomar una muestra</h2>
+					<ul>
+						<li>Configurar registros</li>
+						<li>Setear ADC12SC = 1 y ADC12ENC = 1 en la misma instrucción</li>
+						<li>Polling a ADC12BUSY hasta que termine el muestreo</li>
+						<li>Mover resultado de ADC12MEM0 a variable</li>
+					</ul>
+				</section>
+			</div>
+
+			<!-- The navigational controls UI -->
+			<aside class="controls">
+				<a class="left" href="#">&#x25C4;</a>
+				<a class="right" href="#">&#x25BA;</a>
+				<a class="up" href="#">&#x25B2;</a>
+				<a class="down" href="#">&#x25BC;</a>
+			</aside>
+
+			<!-- Presentation progress bar -->
+			<div class="progress"><span></span></div>
+			
+		</div>
+
+		<script src="lib/js/head.min.js"></script>
+
+		<script>
+			// Load reveal.js as well as a classList polyfill if needed
+			head.js( !document.body.classList ? 'lib/js/classList.js' : null )
+				.js( 'js/reveal.js', function() {
+
+				// Parse the query string into a key/value object
+				var query = {};
+				location.search.replace( /[A-Z0-9]+?=(\w*)/gi, function(a) {
+					query[ a.split( '=' ).shift() ] = a.split( '=' ).pop();
+				} );
+
+				// Fires when a slide with data-state=customevent is activated
+				Reveal.addEventListener( 'customevent', function() {
+					console.log( '"customevent" has fired' );
+				} );
+
+				// Fires each time a new slide is activated
+				Reveal.addEventListener( 'slidechanged', function( event ) {
+					// event.previousSlide, event.currentSlide, event.indexh, event.indexv
+				} );
+
+				// Full list of configuration options available here:
+				// https://github.com/hakimel/reveal.js#configuration
+				Reveal.initialize({
+					controls: false,
+					progress: true,
+					history: true,
+					
+					theme: query.theme || 'default', // default/neon/beige
+					transition: query.transition || 'default' // default/cube/page/concave/linear(2d)
+				});
+
+			} );
+			
+			// Load highlight.js for syntax highlighting of code samples
+			head.js( 'lib/js/highlight.js', function() { 
+				hljs.initHighlightingOnLoad(); 
+			} );
+
+			// If we're runnning the notes server we need to include some additional JS
+			// TODO Is there a better way to determine if we're running the notes server?
+			if( window.location.host === 'localhost:1947' ) {
+				head.js( 'socket.io/socket.io.js', 'plugin/speakernotes/client.js' );
+			}
+		</script>
+		
+	</body>
+</html>

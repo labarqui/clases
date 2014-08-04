@@ -1,0 +1,354 @@
+<!doctype html>  
+<html lang="en">
+	
+	<head>
+		<meta charset="utf-8">
+		
+		<title>Laboratorio de Arquitectura de Computadores - Clase II</title>
+
+		<meta name="description" content="Clase #II del curso: arquitectura del microcontrolador msp430f5529">
+		<meta name="author" content="José Luis Honorato L.">
+		<!-- Modified from the demo @reveal.js's demo page: http://lab.hakim.se/reveal-js/#/ JLH -->
+
+		<meta name="apple-mobile-web-app-capable" content="yes" />
+		<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+		
+		<link href='http://fonts.googleapis.com/css?family=Lato:400,700,400italic,700italic' rel='stylesheet' type='text/css'>
+		
+		<link rel="stylesheet" href="css/reset.css">
+		<link rel="stylesheet" href="css/main.css">
+		<link rel="stylesheet" href="css/print.css" type="text/css" media="print">
+
+		<link rel="stylesheet" href="lib/css/zenburn.css">
+	</head>
+	<!-- Analytics code -->
+	<script type="text/javascript">
+
+	  var _gaq = _gaq || [];
+	  _gaq.push(['_setAccount', 'UA-33777187-1']);
+	  _gaq.push(['_trackPageview']);
+
+	  (function() {
+	    var ga = document.createElement('script'); ga.type = 'text/javascript'; ga.async = true;
+	    ga.src = ('https:' == document.location.protocol ? 'https://ssl' : 'http://www') + '.google-analytics.com/ga.js';
+	    var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(ga, s);
+	  })();
+
+	</script>
+	
+	<body>
+		
+		<div class="reveal">
+
+			<!-- Used to fade in a background when a specific slide state is reached -->
+			<div class="state-background"></div>
+			
+			<!-- Any section element inside of this container is displayed as a slide -->
+			<div class="slides">
+				<!-- Slide 1 -->
+				<section>
+					<br>
+					<h2>IIC2344 - Clase II</h2>
+					<h3>Arquitectura del microcontrolador msp430f5529</h3>
+					<br>
+					<p>José Luis Honorato L.</p>
+					<code href="mailto:jlhonora@ing.puc.cl">jlhonora@ing.puc.cl</code>
+					<script>
+						// Delicously hacky. Look away.
+						if( navigator.userAgent.match( /(iPhone|iPad|iPod|Android)/i ) ) document.write( '<p style="color: rgba(0,0,0,0.3); text-shadow: none;">('+'Tap to navigate'+')</p>' );
+					</script>
+				</section>
+				<!-- Slide -->
+				<section>
+					<h2>Debug con GDB</h2>
+					<a href="http://jlh.satelinx.com/labarqui/clases/clase1.html#/14">Clase 1</a>
+				</section>
+				<!-- Slide -->
+				<section>
+					<h2>Overview</h2>
+					<ul>
+						<li>msp430f5529 es el microcontrolador de la placa msp-exp430f5529</li>
+						<li>Fabricante: Texas Instruments</li>
+						<li>Microcontrolador RISC 16 bits</li>
+						<li>80 pines, 128 KB flash, 8 KB SRAM (+2KB USB RAM)</li>
+					</ul>
+				</section>
+				<!-- Slide -->
+				<section>
+					<h2>Overview</h2>
+					<img src="images/clase2/general.png">
+				</section>
+				<!-- Slide -->
+				<section>
+					<h2>UCS: Unified Clock System</h2>
+					<ul>
+						<li>Módulo de control de los clocks:</li>
+						<img src="images/clase2/ucs.png">
+					</ul>
+				</section>
+				<!-- Slide -->
+				<section>
+					<h2>UCS: Unified Clock System</h2>
+					<ul>
+						<li>Fuentes de clock externas:</li>
+						<ol>
+							<li>XT1 (LFXT1): Osciladores de baja frecuencia (<strong>32768</strong> Hz) o alta frecuencia (4-32 MHz)</li>
+							<li>XT2: Alta frecuencia (<strong>4</strong>-32 MHz)</li>
+							<img src="images/clase2/crystals.png">
+						</ol>
+					</ul>
+				</section>
+				<!-- Slide -->
+				<section>
+					<h2>UCS: Unified Clock System</h2>
+					<ul>
+						<li>Fuentes de clock internas:</li>
+						<ol>
+							<li>DCO: Oscilador interno de diversas frecuencias (1 - 25 MHz)</li>
+							<li>VLO: Oscilador interno de bajo consumo y frecuencia (10 kHz)</li>
+							<li>REFO: Oscilador para referencias de calibración y otros (32768 Hz)</li>
+						</ol>
+					</ul>
+				</section>
+				<!-- Slide -->
+				<section>
+					<h2>UCS: Unified Clock System</h2>
+					<ul>
+						<li>Clocks internos:</li>
+						<ol>
+							<li>MCLK: Master clock, alimenta la CPU</li>
+							<li>SMCLK: Sub-Master clock, periféricos como UART</li>
+							<li>ACLK: Clock auxiliar, propósito general</li>
+						</ol>
+						<li>En estado inicial la CPU queda alimentada por DCOCLKDIV = DCO/2 = 1048576 Hz, al igual que los periféricos</li>
+					</ul>
+				</section>
+				<!-- Slide -->
+				<section>
+					<h2>CPU</h2>
+					<ul>
+						<li>16 registros:</li>
+						<img src="images/clase2/registers.png">
+					</ul>
+				</section>
+				<!-- Slide -->
+				<section>
+					<h2>Low Power Modes (LPM)</h2>
+					<ul>
+						<li>Modos de bajo consumo, principal característica de los MSP430</li>
+						<li>Dos metodologías para bajar consumo: Apagar partes de la CPU y periféricos, o bajar la frecuencia del clock</li>
+						<li>Para este microcontrolador existen varios modos</li>
+						<ol>
+							<li>LPM0: CPU y MCLK apagado</li>
+							<li>LPM1: CPU, MCLK y FLL apagado</li>
+							<li>LPM2: CPU, MCLK, FLL y DCOCLK apagado</li>
+							<li>LPM3: CPU, MCLK, FLL y DCO apagado</li>
+							<li>LPM4: CPU, MCLK, FLL, DCO, ACLK y cristales apagados</li>
+							<li>LPM4.5: Igual al anterior, aunque no hay retención de datos</li>
+						</ol>
+						<li>Flujo de firmware: procesar datos, luego LPM hasta que ocurra interrupción</li>
+					</ul>
+				</section>
+				<!-- Slide -->
+				<section>
+					<h2>Interrupciones</h2>
+					<p>3 tipos de interrupciones:</p>
+					<ul>
+						<li>System reset</li>
+						<li>NMI (non-maskable interrupts)</li>
+						<li>Maskable interrupts</li>
+					</ul>
+				</section>
+				<!-- Slide -->
+				<section>
+					<h2>Interrupciones</h2>
+					<img src="images/clase2/interrupts.png">
+				</section>
+				<!-- Slide -->
+				<!-- Revisar antes de hacer la proxima clase: http://www.cs.washington.edu/education/courses/cse466/11au/calendar/04-Interrupts-posted.pdf -->
+				<section>
+					<h2>Interrupciones</h2>
+					<p>Maskable interrupts:</p>
+					<ul>
+						<li>Interrupciones de periféricos</li>
+						<li>Debe estar habilitado el pin GIE (Global Interrupt Enable)</li>
+						<li>Latencia de 6 ciclos al ocurrir una interrupción:</li>
+						<ol>
+							<li>La instrucción actual se completa</li>
+							<li>El Program Counter (siguiente instrucción) se devuelve al stack</li>
+							<li>Se guarda el Status Register actual</li>
+							<li>Se selecciona la interrupción con más prioridad</li>
+							<li>El flag de interrupción se resetea</li>
+							<li>Todos los bits del SR se borran excepto el que controla los LPM, se deshabilita el resto de las interrupciones</li>
+							<li>El contenido del vector de interrupción se carga en el PC, ejecutando el código de la interrupción</li>
+						</ol>
+					</ul>
+				</section>
+				<!-- Slide -->
+				<section>
+					<h2>Interrupciones</h2>
+					<ul>
+						<li>Para volver al código anterior a la interrupción ocurren lo siguiente:</li>
+						<ol>
+							<li>El SR anterior vuelve al stack (GIE, LPM, etc)</li>
+							<li>El PC anterior se saca del stack y sigue la ejecución normal del programa</li>
+						</ol>
+					</ul>
+				</section>
+				<!-- Slide -->
+				<section>
+					<h2>Interrupciones</h2>
+					<ul>
+						<li>Muy importante:</li>
+						<ul>
+							<li>La ISR (Interrupt Service Routine), que es el código que se ejecuta durante una instrucción, debe ser lo más corta posible</li>
+							<li>El stack de instrucciones utiliza la RAM, por lo que hay cuidar la cantidad de variables, el tamaño de los arreglos y el número de llamado de funciones (recursividad, por ejemplo)</li>
+						</ul>
+					</ul>
+				</section>
+				<!-- Slide -->
+				<section>
+					<h2>Interrupciones</h2>
+					<img src="images/clase2/interrupt_table.png">
+				</section>
+				<!-- Slide -->
+				<section>
+					<h2>Interrupciones I/O</h2>
+					<ul>
+						<li>Ejecutar código cuando se presione un botón (P1.7)</li>
+						<img src="images/clase2/buttons.png">
+						<li>Sólo puertos 1 y 2 tienen interrupciones para inputs</li>
+						<li>Se debe elegir un flanco para la interrupción: subida o bajada</li>
+					</ul>
+				</section>
+				<!-- Slide -->
+				<section>
+					<h2>Interrupciones I/O</h2>
+					<p>Definiciones de puertos</p>
+					<img src="images/clase2/interrupt_code_h.png">
+					<p>Muy buena práctica para claridad de código</p>
+				</section>
+				<!-- Slide -->
+				<section>
+					<h2>Interrupciones I/O</h2>
+					<p>Selección de funciones para un mismo pin</p>
+					<img src="images/clase2/psel.png">
+				</section>
+				<!-- Slide -->
+				<section>
+					<h2>Interrupciones I/O</h2>
+					<ul>
+					<li>Qué es un pull-up o pull-down? Ejemplo pull-up:</li>
+					<img src="images/clase2/pullup.png">
+					<li>Permite estabilizar la lectura e interrupciones</li>
+					<li>Configuración en MSP430</li>
+					<img src="images/clase2/pull_config.png">
+					</ul>
+				</section>
+				<!-- Slide -->
+				<section>
+					<h2>Interrupciones I/O</h2>
+					<p>Diagrama de 1 pin (cualquiera) del puerto 1</p>
+					<img src="images/clase2/p1.png">
+				</section>
+				<!-- Slide -->
+				<section>
+					<h2>Interrupciones I/O</h2>
+					<img src="images/clase2/p1m.png">
+				</section>
+				<!-- Slide -->
+				<section>
+					<h2>Interrupciones I/O</h2>
+					<img src="images/clase2/interrupt_code.png">
+				</section>
+				<!-- Slide -->
+				<section>
+					<h2>Timers</h2>
+					<ul>
+						<li>Módulos de conteo asíncrono, cuenta hasta cierto valor luego interrumpe. Ej: prender un LED cada 1 segundo sin polling.</li>
+						<li>En MSP430 son de 16 bits.</li>
+						<li>Soportan modos PWM (tren de pulsos) y Capture/Compare (para registrar intervalos basados en un evento forzado, e.g. levante de un pin externo).</li>
+					</ul>
+					<img src="images/clase2/timers.png">
+				</section>
+				<!-- Slide -->
+				<section>
+					<h2>Timers especiales</h2>
+					<ul>
+						<li><strong>WatchDog Timer (WDT)</strong>: Diseñado para resetear el sistema en caso de que el firmware no responda. Seteado por default, es necesario desactivarlo o procesarlo correctamente para un correcto funcionamiento del firmware.</li>
+						<li><strong>Real-Time Clock (RTC)</strong>: Permite contar con mucha precisión segundos, minutos, etc. hasta siglos. En general, de muy bajo consumo. Necesitan de un clock de baja frecuencia y alta precisión (XT1)</li>
+					</ul>
+				</section>
+				<!-- Slide -->
+				<section>
+					<h2>Cómo la hacemos funcionar?</h2>
+					<ol>
+						<li>Programamos el firmware</li>
+						<li class="fragment">Compilamos con MSPGCC (gcc)</li>
+						<li class="fragment">Instalamos con MSPDEBUG (gdb)</li>
+				</section>
+			</div>
+
+			<!-- The navigational controls UI -->
+			<aside class="controls">
+				<a class="left" href="#">&#x25C4;</a>
+				<a class="right" href="#">&#x25BA;</a>
+				<a class="up" href="#">&#x25B2;</a>
+				<a class="down" href="#">&#x25BC;</a>
+			</aside>
+
+			<!-- Presentation progress bar -->
+			<div class="progress"><span></span></div>
+			
+		</div>
+
+		<script src="lib/js/head.min.js"></script>
+
+		<script>
+			// Load reveal.js as well as a classList polyfill if needed
+			head.js( !document.body.classList ? 'lib/js/classList.js' : null )
+				.js( 'js/reveal.js', function() {
+
+				// Parse the query string into a key/value object
+				var query = {};
+				location.search.replace( /[A-Z0-9]+?=(\w*)/gi, function(a) {
+					query[ a.split( '=' ).shift() ] = a.split( '=' ).pop();
+				} );
+
+				// Fires when a slide with data-state=customevent is activated
+				Reveal.addEventListener( 'customevent', function() {
+					console.log( '"customevent" has fired' );
+				} );
+
+				// Fires each time a new slide is activated
+				Reveal.addEventListener( 'slidechanged', function( event ) {
+					// event.previousSlide, event.currentSlide, event.indexh, event.indexv
+				} );
+
+				// Full list of configuration options available here:
+				// https://github.com/hakimel/reveal.js#configuration
+				Reveal.initialize({
+					controls: false,
+					progress: true,
+					history: true,
+					
+					theme: query.theme || 'default', // default/neon/beige
+					transition: query.transition || 'default' // default/cube/page/concave/linear(2d)
+				});
+
+			} );
+			
+			// Load highlight.js for syntax highlighting of code samples
+			head.js( 'lib/js/highlight.js', function() { 
+				hljs.initHighlightingOnLoad(); 
+			} );
+
+			// If we're runnning the notes server we need to include some additional JS
+			// TODO Is there a better way to determine if we're running the notes server?
+			if( window.location.host === 'localhost:1947' ) {
+				head.js( 'socket.io/socket.io.js', 'plugin/speakernotes/client.js' );
+			}
+		</script>
+		
+	</body>
+</html>

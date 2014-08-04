@@ -1,0 +1,13 @@
+obj/
+bin/
+.DS*
+._*
+.swp
+.*.sw*
+.project
+*.elf
+.App*
+*.ihex
+*.obj
+ejemplos/nosync
+

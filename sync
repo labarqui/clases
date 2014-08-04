@@ -1,0 +1,4 @@
+#!/bin/bash
+# Pulls repo in server
+
+ssh jlh@satelinx.com 'cd html/labarqui ; git pull'

@@ -1,0 +1,248 @@
+<!doctype html>  
+<html lang="en">
+	
+	<head>
+		<meta charset="utf-8">
+		
+		<title>Laboratorio de Arquitectura de Computadores - Clase V</title>
+
+		<meta name="description" content="Clase #V del curso: LCD">
+		<meta name="author" content="José Luis Honorato L.">
+		<!-- Modified from the demo @reveal.js's demo page: http://lab.hakim.se/reveal-js/#/ JLH -->
+
+		<meta name="apple-mobile-web-app-capable" content="yes" />
+		<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+		
+		<link href='http://fonts.googleapis.com/css?family=Lato:400,700,400italic,700italic' rel='stylesheet' type='text/css'>
+		
+		<link rel="stylesheet" href="css/reset.css">
+		<link rel="stylesheet" href="css/main.css">
+		<link rel="stylesheet" href="css/print.css" type="text/css" media="print">
+
+		<link rel="stylesheet" href="lib/css/zenburn.css">
+	</head>
+	<!-- Analytics code -->
+	<script type="text/javascript">
+
+	  var _gaq = _gaq || [];
+	  _gaq.push(['_setAccount', 'UA-33777187-1']);
+	  _gaq.push(['_trackPageview']);
+
+	  (function() {
+	    var ga = document.createElement('script'); ga.type = 'text/javascript'; ga.async = true;
+	    ga.src = ('https:' == document.location.protocol ? 'https://ssl' : 'http://www') + '.google-analytics.com/ga.js';
+	    var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(ga, s);
+	  })();
+
+	</script>
+	
+	<body>
+		
+		<div class="reveal">
+
+			<!-- Used to fade in a background when a specific slide state is reached -->
+			<div class="state-background"></div>
+			
+			<!-- Any section element inside of this container is displayed as a slide -->
+			<div class="slides">
+				<!-- Slide 1 -->
+				<section>
+					<br>
+					<h2>IIC2344 - Clase V</h2>
+					<h3>Uso del LCD</h3>
+					<br>
+					<p>José Luis Honorato L.</p>
+					<code href="mailto:jlhonora@ing.puc.cl">jlhonora@ing.puc.cl</code>
+					<br>
+					<img src="images/clase5/dogs.png">
+					<script>
+						// Delicously hacky. Look away.
+						if( navigator.userAgent.match( /(iPhone|iPad|iPod|Android)/i ) ) document.write( '<p style="color: rgba(0,0,0,0.3); text-shadow: none;">('+'Tap to navigate'+')</p>' );
+					</script>
+				</section>
+				<!-- Slide -->
+				<section>
+					<h2>Características LCD</h2>
+					<ul>
+						<li>LCD de 102x64 pixeles, modelo DOGS de <a href="http://www.lcd-­‐module.de">Electronic Assembly</a>.</li>
+						<li>Backlight opcional</li>
+						<li>Control de contraste por software/hardware</li>
+						<li>A través de comandos se pueden prender y apagar pixeles: no existe un set de caracteres pre-definido</li>
+						<li>Notación: un pixel "prendido" es de color negro</li>
+						<li>Sólo podemos escribirle a la pantalla, no leer de ella</li>
+					</ul>
+				</section>
+				<!-- Slide -->
+				<section>
+					<h2>Controlador LCD</h2>
+					<ul>
+						<li><a href="http://www.lcd-module.de/eng/pdf/zubehoer/uc1701.pdf">uc1701</a>, es el "cerebro" del LCD</li>
+						<li>Puede controlar LCDs de mayor tamaño (65x132)</li>
+						<li>Comunicación a través de 3-wire SPI</li>
+						<li>Al no contar con un set de caracteres, debemos utilizar un "lookup table" embedido en el código</li>
+					</ul>
+				</section>
+				<!-- Slide -->
+				<section>
+					<h2>Controlador LCD</h2>
+					<ul>
+						<li>Organización de pixeles: filas, columnas y páginas</li>
+						<li>Filas: 64 (65)</li>
+						<li>Columnas: 102 (132)</li>
+						<li>Páginas: 8 (9)</li>
+						<li>No podemos modificar sólo un pixel, sino que escribimos todo un byte en una columna y una página</li>
+						<li>Dos tipos de instrucciones: comandos y datos</li>
+						<ul>
+						<li>En general, los datos van después de comandos</li>
+						<li>Se selecciona el tipo a través de un pin específico, "C/D"</li>
+						</ul>
+					</ul>
+				</section>
+				<!-- Slide -->
+				<section>
+					<h2>Comandos LCD</h2>
+						<img src="images/clase5/commands.png">
+				</section>
+				<!-- Slide -->
+				<section>
+					<h2>Inicialización LCD</h2>
+					<ol>
+						<li>Power control: Booster, Regulator, Follower ON == 0x2F</li>
+						<li>Setear contraste (Electronic Volume), 0x0F = 15</li>
+						<li>Habilitar el display</li>
+						<li>Invertir dirección de filas y columnas</li>
+					</ol>
+					<ul>
+						<li>LCD ya se inicializa en el codigo de ejemplo</li>
+					</ul>
+				</section>
+				<!-- Slide -->
+				<section>
+					<h2>Interfaz SPI</h2>
+					<ul>
+						<li>Comunicación msp-LCD: 3-wire SPI</li>
+						<li>SPI: serial peripheral interface</li>
+						<li>Existe un master y un slave</li>
+						<li>4 conexiones: Slave input master output (SIMO), Master input slave output (MISO), Clock (SCLK), Chip Select (CS).</li>
+						<li>En nuestro caso sólo hay tres ya que no podemos leer datos del LCD</li>
+						<li>Ventajas: no hay errores en la transmisión, 1 master - muchos periféricos</li>
+						<li>Desventajas: muchas conexiones, ruido alta frecuencia por el clock</li>
+					</ul>
+				</section>
+				<!-- Slide -->
+				<section>
+					<h2>Interfaz SPI</h2>
+					<ul>
+						<li>Módulo USCI:</li>
+						<ol>
+							<li>Universal Serial Communication Interface</li>
+							<li>Soporta varios protocolos de comunicación serial: SPI, UART e I2C</li>
+							<li>USCI_A y USCI_B tienen protocolo SPI</li>
+							<li>USCI_B1 está conectado al LCD</li>
+						</ol>
+						<li>Configuración SPI: MSB, Modo 8 bits, captura en primer eje del clock</li>
+						<li>MSP es master y LCD es slave (MSP controla CS)</li>
+					</ul>
+				</section>
+				<!-- Slide -->
+				<section>
+					<h2>Conexión msp-LCD</h2>
+					<img src="images/clase5/schem1.png">
+				</section>
+				<!-- Slide -->
+				<section>
+					<h2>Control de backlight</h2>
+					<img src="images/clase5/schem2.png">
+					<ul>
+						<li>Intensidad controlable con PWM en LCD_BL_EN</li>
+						<li>En nuestro caso la prenderemos de forma contínua</li>
+					</ul>
+				</section>
+				<!-- Slide -->
+				<section>
+					<h2>Conexión msp-LCD</h2>
+					<img src="images/clase5/schem3.png">
+				</section>
+				<!-- Slide -->
+				<section>
+					<h2>Experiencia 1</h2>
+					<ul>
+						<li>Qué hay que implementar?</li>
+						<li>Una función: </li>
+					<pre><code class="cpp">
+int LCD_putchar(int character) { 
+	character = (uint8_t) character;
+	// Handle the character
+	return 0;
+}
+					</code></pre>
+						<li>Función auxiliar de LCD_printf</li>
+						<li>Preocuparse de manejar caracteres especiales: <code>\r, \n, \t</code></li>
+						<li>Controlar qué pasa cuando el string excede las columnas y las filas</li>
+					</ul>
+				</section>
+			</div>
+
+			<!-- The navigational controls UI -->
+			<aside class="controls">
+				<a class="left" href="#">&#x25C4;</a>
+				<a class="right" href="#">&#x25BA;</a>
+				<a class="up" href="#">&#x25B2;</a>
+				<a class="down" href="#">&#x25BC;</a>
+			</aside>
+
+			<!-- Presentation progress bar -->
+			<div class="progress"><span></span></div>
+			
+		</div>
+
+		<script src="lib/js/head.min.js"></script>
+
+		<script>
+			// Load reveal.js as well as a classList polyfill if needed
+			head.js( !document.body.classList ? 'lib/js/classList.js' : null )
+				.js( 'js/reveal.js', function() {
+
+				// Parse the query string into a key/value object
+				var query = {};
+				location.search.replace( /[A-Z0-9]+?=(\w*)/gi, function(a) {
+					query[ a.split( '=' ).shift() ] = a.split( '=' ).pop();
+				} );
+
+				// Fires when a slide with data-state=customevent is activated
+				Reveal.addEventListener( 'customevent', function() {
+					console.log( '"customevent" has fired' );
+				} );
+
+				// Fires each time a new slide is activated
+				Reveal.addEventListener( 'slidechanged', function( event ) {
+					// event.previousSlide, event.currentSlide, event.indexh, event.indexv
+				} );
+
+				// Full list of configuration options available here:
+				// https://github.com/hakimel/reveal.js#configuration
+				Reveal.initialize({
+					controls: false,
+					progress: true,
+					history: true,
+					
+					theme: query.theme || 'default', // default/neon/beige
+					transition: query.transition || 'default' // default/cube/page/concave/linear(2d)
+				});
+
+			} );
+			
+			// Load highlight.js for syntax highlighting of code samples
+			head.js( 'lib/js/highlight.js', function() { 
+				hljs.initHighlightingOnLoad(); 
+			} );
+
+			// If we're runnning the notes server we need to include some additional JS
+			// TODO Is there a better way to determine if we're running the notes server?
+			if( window.location.host === 'localhost:1947' ) {
+				head.js( 'socket.io/socket.io.js', 'plugin/speakernotes/client.js' );
+			}
+		</script>
+		
+	</body>
+</html>

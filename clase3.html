@@ -1,0 +1,328 @@
+<!doctype html>  
+<html lang="en">
+	
+	<head>
+		<meta charset="utf-8">
+		
+		<title>Laboratorio de Arquitectura de Computadores - Clase III</title>
+
+		<meta name="description" content="Clase #III del curso: C">
+		<meta name="author" content="José Luis Honorato L.">
+		<!-- Modified from the demo @reveal.js's demo page: http://lab.hakim.se/reveal-js/#/ JLH -->
+
+		<meta name="apple-mobile-web-app-capable" content="yes" />
+		<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+		
+		<link href='http://fonts.googleapis.com/css?family=Lato:400,700,400italic,700italic' rel='stylesheet' type='text/css'>
+		
+		<link rel="stylesheet" href="css/reset.css">
+		<link rel="stylesheet" href="css/main.css">
+		<link rel="stylesheet" href="css/print.css" type="text/css" media="print">
+
+		<link rel="stylesheet" href="lib/css/zenburn.css">
+	</head>
+	<!-- Analytics code -->
+	<script type="text/javascript">
+
+	  var _gaq = _gaq || [];
+	  _gaq.push(['_setAccount', 'UA-33777187-1']);
+	  _gaq.push(['_trackPageview']);
+
+	  (function() {
+	    var ga = document.createElement('script'); ga.type = 'text/javascript'; ga.async = true;
+	    ga.src = ('https:' == document.location.protocol ? 'https://ssl' : 'http://www') + '.google-analytics.com/ga.js';
+	    var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(ga, s);
+	  })();
+
+	</script>
+	
+	<body>
+		
+		<div class="reveal">
+
+			<!-- Used to fade in a background when a specific slide state is reached -->
+			<div class="state-background"></div>
+			
+			<!-- Any section element inside of this container is displayed as a slide -->
+			<div class="slides">
+				<!-- Slide 1 -->
+				<section>
+					<br>
+					<h2>IIC2344 - Clase III</h2>
+					<h3>Programación en lenguaje C</h3>
+					<br>
+					<p>José Luis Honorato L.</p>
+					<code href="mailto:jlhonora@ing.puc.cl">jlhonora@ing.puc.cl</code>
+					<script>
+						// Delicously hacky. Look away.
+						if( navigator.userAgent.match( /(iPhone|iPad|iPod|Android)/i ) ) document.write( '<p style="color: rgba(0,0,0,0.3); text-shadow: none;">('+'Tap to navigate'+')</p>' );
+					</script>
+				</section>
+				<!-- Slide -->
+				<section>
+					<h2>Raspberry Pi</h2>
+						<img src="images/clase3/pi.jpg">
+				</section>
+				<!-- Slide -->
+				<section>
+					<h2>Calendario</h2>
+					<ul>
+						<li>Esta clase: Código C (clase 3 + clase 4)</li>
+						<li>Prox clase: Experiencia 1, LCD</li>
+					</ul>
+				</section>
+				<!-- Slide -->
+				<section>
+					<br>
+					<h2>C</h2>
+				</section>
+				<!-- Slide -->
+				<section>
+					<h2>C</h2>
+					<ul>
+						<li>Lenguaje de propósito general, no orientado a objetos</li>
+						<li>Multiplataforma</li>
+						<li>Creado en los 70s, muy ligado a UNIX</li>
+						<li>"Bajo" nivel, muy cercano a la máquina. Ideal para microcontroladores</li>
+						<li>Strongly typed</li>
+						<li>Permite buen manejo de  memoria</li>
+						<li>Texto guía: <strong>The C programming Language</strong>, Kerninghan y Ritchie, 1988. Muy recomendable!</li>
+					</ul>
+				</section>
+				<!-- Slide -->
+				<section>
+					<h2>Porqué enseñarles C?</h2>
+					<ul>
+						<li>Es mejor enseñarles lo básico para que se enfoquen en aprender sobre microcontroladores</li>
+						<li>Aprenden los trucos del lenguaje para programarlo bien</li>
+						<li>Simple pero potente</li>
+					</ul>
+				</section>
+				<!-- Slide -->
+				<section>
+					<h2>Programa básico</h2>
+					<pre><code class="cpp">
+// Información sobre librería estándar de I/O
+#include &lt;stdio.h&gt;
+int main(void) {
+	printf("Hello, world!\n");
+	return 0; // Le indica al sistema que todo salió OK
+}
+					</code></pre>
+Compilar:
+					<pre><code class="bash">
+$ gcc main.c
+					</code></pre>
+Correr:
+					<pre><code class="bash">
+$ ./a.out
+					</code></pre>
+				</section>
+				<!-- Slide -->
+				<section>
+					<h2>Tipos de datos</h2>
+					<ul>
+						<li><code>int</code>: enteros positivos y negativos. El tamaño depende de la máquina.</li>
+						<li><code>char</code>: representa un caracter, tamaño de 1 byte.</li>
+						<li><code>long</code>: en general, el doble de un <code>int</code></li>
+						<li>Tamaños definidos en <code>stdint.h</code>
+						<li>Definiciones ambiguas, mejor usar <code>int8_t</code>, <code>uint8_t</code>, <code>int32_t</code>, etc.</li>
+						<li>Qué pasa con <code>double</code> y <code>float</code>?
+					</ul>
+				</section>
+				<!-- Slide -->
+				<section>
+					<h2>Constantes</h2>
+					<ul>
+						<li>Útiles para abstraerse de ciertos números y concentrarse en el código</li>
+						<li>Previene errores (dimensionamiento de arreglos, por ejemplo)</li>
+						<li><code class="cpp">#define MAX_SIZE '\xFFFF'</code></li>
+					</ul>
+				</section> 
+				<!-- Slide -->
+				<section>
+					<h2>Caracteres</h2>
+					<ul>
+						<li>1 byte</li>
+						<li>También pueden ser tratados como números <code class="cpp">C = 'A' + 2</code></li>
+						<li>Representados por la tabla ASCII</li>
+						<img src="images/clase3/ascii.png">
+						<li><code class="cpp">ctype.h</code> provee funciones para analizar caracteres: <code>isalnum, isascii, isprint</code> entre otros (miren el código fuente)</li>
+					</ul>
+				</section> 
+				<!-- Slide -->
+				<section>
+					<h2>Operadores Bitwise</h2>
+					<ul>
+						<li>& : AND</li>
+						<li>| : OR</li>
+						<li>^ : XOR</li>
+						<li>&lt&lt : shift izquierdo</li>
+						<li>&gt&gt : shift derecho</li>
+						<li>~ : negador</li>
+						<li>Ejemplos:</li>
+						<ul>
+							<li>Máscara</li>
+							<li>Setear bit</li>
+							<li>Des-setear bit</li>
+						</ul>
+					</ul>
+				</section> 
+				<!-- Slide -->
+				<section>
+					<h2>Otras operaciones en C</h2>
+					<ul>
+						<li>Operador ternario: <pre><code class="cpp">z = a > b ? a : b;</code><pre></li>
+						<li>Equivalente a <pre><code class="cpp">#define max(a,b) (((a) > (b)) ? (a) : (b))</code><pre></li>
+						<li>Incrementar: <code>++n</code> o <code>n++</code> </li>
+						<li>Qué pasa con <code>a[i] = i++</code></li>
+						<li>Qué pasa con <code>max(i++, j++)</code></li>
+					</ul>
+				</section> 
+				<!-- Slide -->
+				<section>
+					<h2>Flujo de control</h2>
+					<ul>
+						<li>Existen todos los típicos: <code>if, else, for, do, while, continue</code></li>
+						<li> Algunos diferentes:
+<pre><code>
+switch expression {
+	case 1 ... 3: /* code for 1...3 */; break;
+	case 4: 
+	case 5: /* code for 4 and 5 */ break;
+	case 6: /* code for 6 */ break;
+	default: code; break;
+}
+</code></pre>
+<pre><code>
+for(i = 0; i &lt n; i++)
+	if(a[i] == b[i])
+		goto found;
+found:
+	printf("Found it!\n");
+</code></pre>
+					</ul>
+				</section> 
+				<!-- Slide -->
+				<section>
+					<h2>Tipos de variables</h2>
+					<ul>
+						<pre><code>extern volatile uint8_t button_count;</code></pre>
+						<li>Útiles cuando se trabaja con otros archivos .c . Mejores que getters y setters?</li>
+						<li>Uso de volatile útil para variables modificadas en interrupciones</li>
+						<li><code>static</code>: sólo para variables que se modifican dentro de un mismo .c</li>
+						<li><code>const</code>: constante, aunque diferente a <code>define</code></li>
+					</ul>
+				</section> 
+				<!-- Slide -->
+				<section>
+					<h2>Declaración de funciones</h2>
+					<ul>
+						<pre><code class="cpp">uint16_t max(uint16_t a, uint16_t b)</code></pre>
+						<li>Generalmente se definen en archivos .h o al principio del archivo .c</li>
+						<li>Qué pasa si no declaro las funciones?</li>
+						<li>Y si las funciones no tienen argumentos?</li>
+					</ul>
+				</section> 
+				<!-- Slide -->
+				<section>
+					<h2>Arreglos</h2>
+<pre><code class="cpp">
+int digitos[10] = {0, 1, 2, 3, 4, 5, 6, 7, 8, 9};
+digitos[0] = 0;
+digitos[10] = 10;
+</code></pre>
+				</section> 
+				<!-- Slide -->
+				<section>
+					<h2>Estructura general de un programa en C</h2>
+					<ul>
+<pre><code class="cpp">
+#include &ltstdio.h&gt
+#include "myheader.h"
+
+/* Declaraciones de funciones usadas en main, set y max */
+int main(void) { ... }
+
+/* Variables externas para max */
+uint16_t max(uint16_t a, uint16_t b) { ... }
+void set(void) { ... }
+
+</code></pre>
+					<li>Idealmente separarlos en diferentes archivos .c y .h</li>
+					<li><code>.h</code> para definiciones de constantes y funciones</li>
+					<li><code>.c</code> para código</li>
+					</ul>
+				</section> 
+				<!-- Slide -->
+				<section>
+					<h2>Flujo en uC</h2>
+						<img src="images/clase3/msp430flow.png">
+						<br>
+						<a href="http://www.ti.com/lit/an/slaa294a/slaa294a.pdf">MSP430 software coding techniques</a>
+				</section> 
+			</div>
+
+			<!-- The navigational controls UI -->
+			<aside class="controls">
+				<a class="left" href="#">&#x25C4;</a>
+				<a class="right" href="#">&#x25BA;</a>
+				<a class="up" href="#">&#x25B2;</a>
+				<a class="down" href="#">&#x25BC;</a>
+			</aside>
+
+			<!-- Presentation progress bar -->
+			<div class="progress"><span></span></div>
+			
+		</div>
+
+		<script src="lib/js/head.min.js"></script>
+
+		<script>
+			// Load reveal.js as well as a classList polyfill if needed
+			head.js( !document.body.classList ? 'lib/js/classList.js' : null )
+				.js( 'js/reveal.js', function() {
+
+				// Parse the query string into a key/value object
+				var query = {};
+				location.search.replace( /[A-Z0-9]+?=(\w*)/gi, function(a) {
+					query[ a.split( '=' ).shift() ] = a.split( '=' ).pop();
+				} );
+
+				// Fires when a slide with data-state=customevent is activated
+				Reveal.addEventListener( 'customevent', function() {
+					console.log( '"customevent" has fired' );
+				} );
+
+				// Fires each time a new slide is activated
+				Reveal.addEventListener( 'slidechanged', function( event ) {
+					// event.previousSlide, event.currentSlide, event.indexh, event.indexv
+				} );
+
+				// Full list of configuration options available here:
+				// https://github.com/hakimel/reveal.js#configuration
+				Reveal.initialize({
+					controls: false,
+					progress: true,
+					history: true,
+					
+					theme: query.theme || 'default', // default/neon/beige
+					transition: query.transition || 'default' // default/cube/page/concave/linear(2d)
+				});
+
+			} );
+			
+			// Load highlight.js for syntax highlighting of code samples
+			head.js( 'lib/js/highlight.js', function() { 
+				hljs.initHighlightingOnLoad(); 
+			} );
+
+			// If we're runnning the notes server we need to include some additional JS
+			// TODO Is there a better way to determine if we're running the notes server?
+			if( window.location.host === 'localhost:1947' ) {
+				head.js( 'socket.io/socket.io.js', 'plugin/speakernotes/client.js' );
+			}
+		</script>
+		
+	</body>
+</html>

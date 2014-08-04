@@ -1,0 +1,292 @@
+<!doctype html>  
+<html lang="en">
+	
+	<head>
+		<meta charset="utf-8">
+		
+		<title>Laboratorio de Arquitectura de Computadores - Clase VII</title>
+
+		<meta name="description" content="Clase #VII del curso: Tarjeta SD">
+		<meta name="author" content="José Luis Honorato L.">
+		<!-- Modified from the demo @reveal.js's demo page: http://lab.hakim.se/reveal-js/#/ JLH -->
+
+		<meta name="apple-mobile-web-app-capable" content="yes" />
+		<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+		
+		<link href='http://fonts.googleapis.com/css?family=Lato:400,700,400italic,700italic' rel='stylesheet' type='text/css'>
+		
+		<link rel="stylesheet" href="css/reset.css">
+		<link rel="stylesheet" href="css/main.css">
+		<link rel="stylesheet" href="css/print.css" type="text/css" media="print">
+
+		<link rel="stylesheet" href="lib/css/zenburn.css">
+	</head>
+	<!-- Analytics code -->
+	<script type="text/javascript">
+
+	  var _gaq = _gaq || [];
+	  _gaq.push(['_setAccount', 'UA-33777187-1']);
+	  _gaq.push(['_trackPageview']);
+
+	  (function() {
+	    var ga = document.createElement('script'); ga.type = 'text/javascript'; ga.async = true;
+	    ga.src = ('https:' == document.location.protocol ? 'https://ssl' : 'http://www') + '.google-analytics.com/ga.js';
+	    var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(ga, s);
+	  })();
+
+	</script>
+	
+	<body>
+		
+		<div class="reveal">
+
+			<!-- Used to fade in a background when a specific slide state is reached -->
+			<div class="state-background"></div>
+			
+			<!-- Any section element inside of this container is displayed as a slide -->
+			<div class="slides">
+				<!-- Slide 1 -->
+				<section>
+					<br>
+					<h2>IIC2344 - Clase VII</h2>
+					<h3>Tarjeta uSD</h3>
+					<br>
+					<p>José Luis Honorato L.</p>
+					<code href="mailto:jlhonora@ing.puc.cl">jlhonora@ing.puc.cl</code>
+					<br>
+					<script>
+						// Delicously hacky. Look away.
+						if( navigator.userAgent.match( /(iPhone|iPad|iPod|Android)/i ) ) document.write( '<p style="color: rgba(0,0,0,0.3); text-shadow: none;">('+'Tap to navigate'+')</p>' );
+					</script>
+				</section>
+				<!-- Slide -->
+				<section>
+					<h2>Tarjeta uSD</h2>
+					<ul>
+						<li>SD:<i>Secure Digital</i></li>
+						<li>Tarjeta de hasta 2MB, hasta 32 GB para SDHC (High Capacity)</li>
+						<li>Tiene un microcontrolador dentro de ella</li>
+						<li>Se comunica por SPI, clock hasta 25 MHz (400 kHz en inicialización)</li>
+					</ul>
+				</section>
+				<!-- Slide -->
+				<section>
+					<h2>Tarjeta uSD</h2>
+						<img src="images/clase7/micro_contact.jpg">
+					<ul>
+						<li>Pin-compatible con tarjeta SD, MMC y mini SD</li>
+					</ul>
+				</section>
+				<!-- Slide -->
+				<section>
+					<h2>Características</h2>
+					<ul>
+						<li>Memoria dividida por bloques o sectores de bytes, default: 512 bytes</li>
+						<li>Memoria flash NAND</li>
+						<li>Opera entre 2.7 y 3.6V</li>
+						<li>Consume entre 10 y 100 mA (antes de inicializar y al escribir, respectivamente)</li>
+						<li>SD version 1.0</li>
+					</ul>
+				</section>
+				<!-- Slide -->
+				<section>
+					<h2>Estructura interna</h2>
+					<img src="images/clase7/arch.jpg">
+				</section>
+				<!-- Slide -->
+				<section>
+					<h2>Registros</h2>
+					<ul>
+						<li><strong>OCR</strong>: Operating conditions (Voltaje operación, estado de capacidad)</li>
+						<li><strong>CID</strong>: Card identification (fabricante, número serial)</li>
+						<li><strong>CSD</strong>: Datos operacionales (versión, velocidad de lectura, tamaño de la tarjeta)</li>
+						<li><strong>RCA</strong>: Relative card address</li>
+						<li><strong>DSR</strong>: Driver stage register</li>
+						<li><strong>SCR</strong>: SD Card configuration register</li>
+						<li>Más información en documento SD Physical Layer Spec (Siding)</li>
+					</ul>
+				</section>
+				<!-- Slide -->
+				<section>
+					<h2>Protocolo SD</h2>
+					<ul>
+						<li>Para enviar y recibir datos se utiliza SPI</li>
+						<li>Comandos de 6 bytes: 1 header, 4 argumentos, 1 checksum</li>
+					</ul>
+					<img src="images/clase7/cmd.png">
+				</section>
+				<!-- Slide -->
+				<section>
+					<h2>Protocolo SD</h2>
+					<ul>
+						<li>Después de enviar un comando recibimos la respuesta desde la tarjeta</li>
+						<li>Cada comando tiene pre-definido un tipo de respuesta (R1, R2, etc)</li>
+					</ul>
+					<img src="images/clase7/cresp.png">
+					<ul>
+						<li>Si la respuesta tiene datos asociados se reciben a continuación</li>
+					</ul>
+				</section>
+				<!-- Slide -->
+				<section>
+					<h2>Protocolo SD</h2>
+					<ul>
+						<li>Algunos comandos</li>
+					</ul>
+					<img src="images/clase7/cmd_table.png">
+				</section>
+				<!-- Slide -->
+				<section>
+					<h2>Registro CSD</h2>
+					<ul>
+						<li>Contiene información relevante sobre la tarjeta</li>
+					</ul>
+					<img src="images/clase7/csd.png">
+					<ul>
+						<li><code>READ_BL_LEN</code>: Tamaño de los sectores (bytes/sector)</li>
+						<li><code>C_SIZE</code>: Número de sectores</li>
+						<li><code>C_SIZE_MULT</code>: Multiplicador</li>
+						<li>Tamaño: <code>(C_SIZE + 1)*2^(C_SIZE_MULT + 2 + READ_BL_LEN)</code></li>
+					</ul>
+				</section>
+				<!-- Slide -->
+				<section>
+					<h2>Escritura y lectura</h2>
+					<ul>
+						<li>Hasta ahora hemos hablado de sectores y bytes</li>
+						<li>Con esto no es posible escribir archivos y luego leerlos en el PC con un adaptador de tarjeta SD</li>
+						<li>Necesitamos una librería que maneje los sectores y monte un sistema de archivos</li>
+					</ul>
+				</section>
+				<!-- Slide -->
+				<section>
+					<h2>FatFS</h2>
+					<ul>
+						<li>Librería en C que implementa FAT para tarjetas SD</li>
+						<li>Tamaño pequeño, usaremos FAT16. Desventajas:
+							<ul>
+								<li>Tamaño máximo 2 gigabytes</li>
+								<li>No pueden haber más de 512 elementos en la carpeta root</li>
+								<li>Límites en el tamaño de los nombres de los archivos</li>
+							</ul>
+						</li>
+						<li>Capa de abstracción para el hardware, SPI y se implementa localmente</li>
+						<li>En orden descendiente de jerarquía: FatFS &gt MMC &gt SPI</li>
+					</ul>
+				</section>
+				<!-- Slide -->
+				<section>
+					<h2>Controlador MSP</h2>
+					<img src="images/clase7/sd_design2.png">
+				</section>
+				<!-- Slide -->
+				<section>
+					<h2>Controlador MSP</h2>
+					<img src="images/clase7/sd_design1.png">
+					<br>
+					<ul>
+						<li>Comparte puerto SPI con LCD!</li>
+					</ul>
+				</section>
+				<!-- Slide -->
+				<section>
+					<h2>Controlador MSP - Modo SPI</h2>
+					<ul>
+						<li>Modo SPI 0 (Clock no invertido, captura de datos en primer flanco de clock, cambio en el segundo)</li> 
+						<li>Igual que LCD</li> 
+						<li>Seleccionar SD o LCD con sus respectivos Chip Select</li> 
+						<li>CS en 0 selecciona el periférico</li> 
+					</ul>
+				</section>
+				<!-- Slide -->
+				<section>
+					<h2>RTC</h2>
+					<ul>
+						<li>RTC: Real Time Clock</li> 
+						<li>Contador que genera eventos a intervalos exactos</li> 
+						<li>Usado generalmente para tener noción del tiempo en sistemas embebidos</li> 
+						<li>En general se calibra con un cristal de 32768 Hz</li> 
+					</ul>
+				</section>
+				<!-- Slide -->
+				<section>
+					<h2>RTC</h2>
+					<ul>
+						<li>Se deben setear registros de control y cristal LFXT1</li> 
+						<li>Setear/Leer hora y fecha en otros registros</li> 
+						<li>Para guardar consistencia entre la hora de su PC y la del msp, al compilar modficar archivo .c según hora local, luego compilar e instalar</li> 
+					</ul>
+				</section>
+				<!-- Slide -->
+				<section>
+					<h2>Deadlines</h2>
+					<ul>
+						<li>En 3 semanas (4 Junio) se entrega parte 1</li> 
+						<li>En 4 semanas (11 Junio) se entrega la experiencia</li> 
+					</ul>
+				</section>
+			</div>
+
+			<!-- The navigational controls UI -->
+			<aside class="controls">
+				<a class="left" href="#">&#x25C4;</a>
+				<a class="right" href="#">&#x25BA;</a>
+				<a class="up" href="#">&#x25B2;</a>
+				<a class="down" href="#">&#x25BC;</a>
+			</aside>
+
+			<!-- Presentation progress bar -->
+			<div class="progress"><span></span></div>
+			
+		</div>
+
+		<script src="lib/js/head.min.js"></script>
+
+		<script>
+			// Load reveal.js as well as a classList polyfill if needed
+			head.js( !document.body.classList ? 'lib/js/classList.js' : null )
+				.js( 'js/reveal.js', function() {
+
+				// Parse the query string into a key/value object
+				var query = {};
+				location.search.replace( /[A-Z0-9]+?=(\w*)/gi, function(a) {
+					query[ a.split( '=' ).shift() ] = a.split( '=' ).pop();
+				} );
+
+				// Fires when a slide with data-state=customevent is activated
+				Reveal.addEventListener( 'customevent', function() {
+					console.log( '"customevent" has fired' );
+				} );
+
+				// Fires each time a new slide is activated
+				Reveal.addEventListener( 'slidechanged', function( event ) {
+					// event.previousSlide, event.currentSlide, event.indexh, event.indexv
+				} );
+
+				// Full list of configuration options available here:
+				// https://github.com/hakimel/reveal.js#configuration
+				Reveal.initialize({
+					controls: false,
+					progress: true,
+					history: true,
+					
+					theme: query.theme || 'default', // default/neon/beige
+					transition: query.transition || 'default' // default/cube/page/concave/linear(2d)
+				});
+
+			} );
+			
+			// Load highlight.js for syntax highlighting of code samples
+			head.js( 'lib/js/highlight.js', function() { 
+				hljs.initHighlightingOnLoad(); 
+			} );
+
+			// If we're runnning the notes server we need to include some additional JS
+			// TODO Is there a better way to determine if we're running the notes server?
+			if( window.location.host === 'localhost:1947' ) {
+				head.js( 'socket.io/socket.io.js', 'plugin/speakernotes/client.js' );
+			}
+		</script>
+		
+	</body>
+</html>

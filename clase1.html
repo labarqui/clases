@@ -1,0 +1,361 @@
+<!doctype html>  
+<html lang="en">
+	
+	<head>
+		<meta charset="utf-8">
+		
+		<title>Laboratorio de Arquitectura de Computadores - Clase I</title>
+
+		<meta name="description" content="Clase #I del curso: presentaciones, overview y un poco sobre herramientas básicas.">
+		<meta name="author" content="José Luis Honorato L.">
+		<!-- Modified from the demo @reveal.js's demo page: http://lab.hakim.se/reveal-js/#/ JLH -->
+
+		<meta name="apple-mobile-web-app-capable" content="yes" />
+		<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+		
+		<link href='http://fonts.googleapis.com/css?family=Lato:400,700,400italic,700italic' rel='stylesheet' type='text/css'>
+		
+		<link rel="stylesheet" href="css/reset.css">
+		<link rel="stylesheet" href="css/main.css">
+		<link rel="stylesheet" href="css/print.css" type="text/css" media="print">
+
+		<link rel="stylesheet" href="lib/css/zenburn.css">
+	</head>
+	<!-- Analytics code -->
+	<script type="text/javascript">
+
+	  var _gaq = _gaq || [];
+	  _gaq.push(['_setAccount', 'UA-33777187-1']);
+	  _gaq.push(['_trackPageview']);
+
+	  (function() {
+	    var ga = document.createElement('script'); ga.type = 'text/javascript'; ga.async = true;
+	    ga.src = ('https:' == document.location.protocol ? 'https://ssl' : 'http://www') + '.google-analytics.com/ga.js';
+	    var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(ga, s);
+	  })();
+
+	</script>
+	
+	<body>
+		
+		<div class="reveal">
+
+			<!-- Used to fade in a background when a specific slide state is reached -->
+			<div class="state-background"></div>
+			
+			<!-- Any section element inside of this container is displayed as a slide -->
+			<div class="slides">
+				<!-- Slide 1 -->
+				<section>
+					<br>
+					<h2>IIC2344 - Clase I</h2>
+					<br>
+					<p>José Luis Honorato L.</p>
+					<code href="mailto:jlhonora@ing.puc.cl">jlhonora@ing.puc.cl</code>
+					<script>
+						// Delicously hacky. Look away.
+						if( navigator.userAgent.match( /(iPhone|iPad|iPod|Android)/i ) ) document.write( '<p style="color: rgba(0,0,0,0.3); text-shadow: none;">('+'Tap to navigate'+')</p>' );
+					</script>
+				</section>
+				
+				<!-- Slide -->
+				<section>
+					<h2>Aspectos generales</h2>
+					<ul>
+						<li><strong>Créditos</strong>: 10</li>
+						<li><strong>Requisitos</strong>: Arquitectura de Computadores</li>
+						<li><strong>Horario</strong>: 13:30-16:50</li>
+						<li><strong>Sala de clases</strong>: Lab2000 (Edificio San Agustín, 2do piso al fondo)</li>
+						<li><strong>Sitio web del curso</strong>: <a href="http://www.ing.puc.cl/20122/iic2344-1"i>Siding</a></li>
+					</ul>
+				</section>
+				
+				<!-- Slide -->
+				<section>
+					<h2>Presentación</h2>
+
+					<aside class="notes">
+						Notas de presentador aquí
+					</aside>
+				</section>
+				
+				<!-- Slide falta -->
+				<section>
+					<h2>Motivación</h2>
+					<ul>
+						<li>Microcontroladores/Sistemas Embebidos presentes en muchos dispositivos</li>
+						<li>Es necesario conocer su arquitectura para controlar entradas y salidas</li>
+						<li>Aprender a controlar un computador a bajo nivel</li>
+					</ul>
+					<p>
+					</p>
+				</section>
+				<!-- Slide -->
+				<section>
+					<h2>Objetivos</h2>
+					<ul>
+						<li>Conocer la arquitectura de un microcontrolador convencional</li>
+						<li>Manejar puertos, entradas, salidas</li>
+						<li>Controlar periféricos</li>
+					</ul>
+				</section>
+				<!-- Slide -->
+				<section>
+					<h2>Metodología</h2>
+					<ul>
+						<li>Experiencias de 1 a 4 semanas enfocados en cierto tema</li>
+						<li>Trabajo personal y en grupo</li>
+						<li>Entregas preliminares y finales</li>
+						<li>Informe al final de cada experiencia, máximo 10 páginas</li>
+						<li>Proyecto final</li>
+					</ul>
+				</section>
+				<!-- Slide -->
+				<section>
+					<h2>Metodología - Evaluación</h2>
+					<ul>
+						<li>Nota experiencias:</li>
+						<ul>
+							<li>25% Trabajo en el laboratorio</li>
+							<li>45% Funcionamiento</li>
+							<li>30% Informe</li>
+						</ul>
+						<li>Nota final:</li>
+						<ul>
+							<li>NX: Nota Experiencias, NP: Nota Proyecto</li>
+							<li>NF = 0.75*NX + 0.25*NP si NX&gt=4 y NP&gt=4</li>
+							<li>NF = min(NX, NR) si NX &lt 4 o NP &lt 4</li>
+						</ul>
+					</ul>
+				</section>
+				<!-- Slide -->
+				<section>
+					<h2>Metodología</h2>
+							<img src="images/clase1/placa.png">
+					<ul>
+						<li>Placa msp-exp430f5529</li>
+						<li>Basada en microcontroladores msp430 de TI</li>
+					</ul>
+				</section>
+				<!-- Slide -->
+				<section>
+					<h2>Metodología</h2>
+							<img src="images/clase1/placa-detailed.png">
+					<br>
+					<ul>
+						<li>Varios periféricos</li>
+						<li>Véanlas ustedes...</li>
+					</ul>
+				</section>
+				<!-- Slide -->
+				<section>
+					<h2>Cómo la hacemos funcionar?</h2>
+					<ol>
+						<li>Programamos el firmware</li>
+						<li class="fragment">Compilamos con MSPGCC (gcc)</li>
+						<li class="fragment">Instalamos con MSPDEBUG (gdb)</li>
+				</section>
+				<!-- Slide -->
+				<section>
+					<h2>Cómo la hacemos funcionar?</h2>
+						<ul>
+						<li>Programamos el firmware</li>
+						<li>3 documentos importantes:</li>
+						<ol>
+							<li>Family guide: Descripción de la "familia" de microcontroladores (familia 5)</li>
+							<li>Datasheet: Descripción y distribución específica para el microcontrolador de la placa (msp430f5529)</li>
+							<li>Design files: Esquemático o "plano" de la placa</li>
+
+						</ol>
+						</ul>
+				</section>
+				<!-- Slide -->
+				<section>
+					<h2>Cómo la hacemos funcionar?</h2>
+					<p>Programamos el firmware</p>
+					<pre><code>
+#include &lt;msp430.h&gt; // Definiciones de puertos, etc          .
+int main(void) {
+	WDTCTL = WDTPW + WDTHOLD; // Paramos WDT
+	P1SEL &= ~BIT0;      // Pin 1.0 como IO 
+	P1DIR |= BIT0;       // Pin 1.0 como salida
+	P1OUT |= BIT0;       // Pin 1.0 en 1
+	LPM3;                // Modo de bajo consumo
+	return 0;
+}
+					</code></pre>
+				</section>
+				<!-- Slide -->
+				<section>
+					<h2>Cómo la hacemos funcionar?</h2>
+						<p>Compilamos y linkeamos con MSPGCC (gcc) y rake</p>
+					<pre><code>
+$ rake
+Compiling main.c...
+Linking binary for msp430f5529...
+bin.elf and bin.ihex succesfully generated!
+					</code></pre>
+				</section>
+				<!-- Slide -->
+				<section>
+					<h2>Cómo la hacemos funcionar?</h2>
+						<p>Instalamos con MSPDEBUG (gdb)</p>
+					<pre><code>
+$ sudo mspdebug rf2500 prog "bin.elf"
+					</code></pre>
+					</ol>
+				</section>
+				<!-- Slide -->
+				<section>
+					<br>
+					<h2>Herramientas</h2>
+					<p>Debug con GDB</p>
+					<ul>
+						<li>Abrir mspdebug sin comandos: <code>sudo mspdebug rf2500</code></li>
+						<li>En mspdebug, correr el comando <code>gdb</code></li>
+						<li>En otra pestaña, abrir GDB: <code>msp430-gdb --tui bin.elf</code></li>
+						<li>En GDB, correr: <code>target remote localhost:2000</code></li>
+						<li>Debuggear en hardware tiene desventajas: hay eventos que no se pueden dejar pasar, hay componentes que necesitan cierto tiempo de estabilización, etc.</li>
+					</ul>
+				</section>
+				<!-- Slide -->
+				<section>
+					<br>
+					<h2>Herramientas</h2>
+					<p>Debug con GDB - Comandos</p>
+					<ul>
+						<li><code>continue</code> Corre el programa desde la posición actual</li>
+						<li><code>break main</code> Breakpoint en la función main. También se puede usar en interrupciones.</li>
+						<li><code>step</code> Entra a la función</li>
+						<li><code>next</code> Ejecuta la línea actual y avanza a la siguiente línea</li>
+						<li><code>list main.c:5</code> Imprime 10 líneas del archivo main.c empezando desde la línea 5</li>
+						<li><code>print var</code> Imprime el valor actual de var</li>
+						<li>Para más comandos, revisar este <a href="http://darkdust.net/files/GDB%20Cheat%20Sheet.pdf">Cheat Sheet</a></li>
+					</ul>
+				</section>
+				<!-- Slide -->
+				<section>
+					<h2>Herramientas</h2>
+					<p>Linux</p>
+					<pre><code>
+// Mostrar todos los archivos y carpetas del directorio
+$ ls
+// Moverse a la carpeta src/
+$ cd src/
+// Crear una nueva carpeta
+$ mkdir nueva_carpeta
+// Buscar (recursivamente) el keyword P1OUT
+$ grep -nr P1OUT .
+// Reemplazar el keyword P1OUT por P1_OUT
+$ grep -lre P1OUT . | xargs sed -i 's/P1OUT/P1_OUT/g'
+// Buscar (recursivamente) todos los archivos con extensión .c
+$ find . -name "*.c"
+					</code></pre>
+				</section>
+				<!-- Slide -->
+				<section>
+					<h2>Herramientas</h2>
+					<p>Github</p>
+					<pre><code>
+// Copiar repositorio del curso
+$ git clone https://jlhonora@bitbucket.org/jlhonora/labarqui.git
+// Para hacer su propio repositorio, revisar las instrucciones
+// de Bitbucket o Github. Los comandos más comunes son:
+$ git add .
+$ git commit -m "Commit inicial"
+$ git push
+					</code></pre>
+				</section>
+				<!-- Slide -->
+				<section>
+					<h2>Herramientas</h2>
+					<ul>
+						<li>Librería de las diapositivas: <a href="http://lab.hakim.se/reveal-js/">Reveal.js</a></li>
+					</ul>
+				</section>
+				<!-- Slide -->
+				<section>
+					<h2>Pasos a seguir</h2>
+					<ul>
+						<li>Conseguir linux y correrlo en su PC (vmware u otro para virtualizar)</li>
+						<li>Instalar mspgcc y sus herramientas</li>
+						<li>Instalar rake</li>
+						<li>Bajar el repositorio del curso</li>
+						<li>Compilar e instalar el ejemplo visto en clases</li>
+					</ul>
+				</section>
+				
+					<aside class="notes">
+					<h2>Stellar Links</h2>
+					<ul>
+						<li><a href="https://github.com/hakimel/reveal.js">Source code on github</a></li>
+						<li><a href="http://hakim.se/projects/reveal-js">Read more on my site</a></li>
+						<li><a href="http://twitter.com/hakimel">Follow me on Twitter</a></li>
+					</ul>
+					</aside>
+				
+			</div>
+
+			<!-- The navigational controls UI -->
+			<aside class="controls">
+				<a class="left" href="#">&#x25C4;</a>
+				<a class="right" href="#">&#x25BA;</a>
+				<a class="up" href="#">&#x25B2;</a>
+				<a class="down" href="#">&#x25BC;</a>
+			</aside>
+
+			<!-- Presentation progress bar -->
+			<div class="progress"><span></span></div>
+			
+		</div>
+
+		<script src="lib/js/head.min.js"></script>
+
+		<script>
+			// Load reveal.js as well as a classList polyfill if needed
+			head.js( !document.body.classList ? 'lib/js/classList.js' : null )
+				.js( 'js/reveal.js', function() {
+
+				// Parse the query string into a key/value object
+				var query = {};
+				location.search.replace( /[A-Z0-9]+?=(\w*)/gi, function(a) {
+					query[ a.split( '=' ).shift() ] = a.split( '=' ).pop();
+				} );
+
+				// Fires when a slide with data-state=customevent is activated
+				Reveal.addEventListener( 'customevent', function() {
+					console.log( '"customevent" has fired' );
+				} );
+
+				// Fires each time a new slide is activated
+				Reveal.addEventListener( 'slidechanged', function( event ) {
+					// event.previousSlide, event.currentSlide, event.indexh, event.indexv
+				} );
+
+				// Full list of configuration options available here:
+				// https://github.com/hakimel/reveal.js#configuration
+				Reveal.initialize({
+					controls: false,
+					progress: true,
+					history: true,
+					
+					theme: query.theme || 'default', // default/neon/beige
+					transition: query.transition || 'default' // default/cube/page/concave/linear(2d)
+				});
+
+			} );
+			
+			// Load highlight.js for syntax highlighting of code samples
+			head.js( 'lib/js/highlight.js', function() { 
+				hljs.initHighlightingOnLoad(); 
+			} );
+
+			// If we're runnning the notes server we need to include some additional JS
+			// TODO Is there a better way to determine if we're running the notes server?
+			if( window.location.host === 'localhost:1947' ) {
+				head.js( 'socket.io/socket.io.js', 'plugin/speakernotes/client.js' );
+			}
+		</script>
+		
+	</body>
+</html>
